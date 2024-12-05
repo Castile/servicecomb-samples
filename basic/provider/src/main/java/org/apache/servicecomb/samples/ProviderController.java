@@ -18,9 +18,11 @@
 package org.apache.servicecomb.samples;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 
 @RestSchema(schemaId = "ProviderController")
 @RequestMapping(path = "/")
@@ -29,5 +31,20 @@ public class ProviderController {
   @GetMapping("/sayHello")
   public String sayHello(@RequestParam("name") String name) {
     return "Hello " + name;
+  }
+
+  @GetMapping("/test/health")
+  public String health(){
+    return "UP";
+  }
+  @GetMapping("/test/invoke")
+  public String invoke(@RequestParam("url") String url){
+    RestTemplate restTemplate = RestTemplateBuilder.create();
+    return restTemplate.getForObject(url, String.class);
+  }
+  @GetMapping("/test/invokeTest")
+  public String invokeTest(String url){
+    RestTemplate restTemplate = RestTemplateBuilder.create();
+    return restTemplate.getForObject("cse://provider/test/health", String.class);
   }
 }

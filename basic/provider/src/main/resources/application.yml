@@ -1,28 +1,30 @@
-#
-## ---------------------------------------------------------------------------
-## Licensed to the Apache Software Foundation (ASF) under one or more
-## contributor license agreements.  See the NOTICE file distributed with
-## this work for additional information regarding copyright ownership.
-## The ASF licenses this file to You under the Apache License, Version 2.0
-## (the "License"); you may not use this file except in compliance with
-## the License.  You may obtain a copy of the License at
-##
-##      http://www.apache.org/licenses/LICENSE-2.0
-##
-## Unless required by applicable law or agreed to in writing, software
-## distributed under the License is distributed on an "AS IS" BASIS,
-## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-## See the License for the specific language governing permissions and
-## limitations under the License.
-## ---------------------------------------------------------------------------
-# spring boot configurations
 server:
   port: 9093  # should be same with servicecomb.rest.address to use web container
-
+  servlet:
+    context-path: /provider
+  tomcat:
+    accesslog:
+      enabled: true
+      directory: /Users/castile/Documents/Code/servicecomb-samples/basic/provider/access/
+      pattern: '"[%{x-biz-tenantId}r]" %h %l %u %t "%r" %s %b %Dms "%{Referer}i" "%{User-Agent}i" "%{X-Request-ID}i" "%{X-Forwarded-For}i"'
 # override common configurations in common module
 servicecomb-config-order: 10
 
 servicecomb:
+  server:
+    context:
+      ## 开启支持在将上下文传递到cse请求中
+      pass: true
+  accesslog:
+    ## server 端 启用access log
+    enabled: true
+    ##  server 端 自定义 access log 日志格式
+    pattern: "[%{x-biz-tenantId}i]-%h - - %t %r %s %B %D"
+    request:
+      ## client 端开启 request log
+      enabled: true
+      ## client 端自定义 request log 日志格式
+      pattern: "%h %SCB-transport - - %t %r %s %D"
   service:
     application: basic-application
     name: provider
@@ -38,11 +40,24 @@ servicecomb:
 
   rest:
     address: 0.0.0.0:9093 # should be same with server.port to use web container
+    servlet:
+      # https://servicecomb.apache.org/references/java-chassis/2.x/zh_CN/featured-topics/application-porter/porter-website.html#tomcatspring-bootweb
+      urlPattern: /cse/*
 
+  handler:
+    chain:
+      Consumer:
+        default: context, qps-flowcontrol-consumer, loadbalance
+      Provider:
+        default: context, qps-flowcontrol-provider
 # Configure AK/SK credentials if needed. Default not enabled.
 #  credentials:
 #    akskEnabled: false
 #    accessKey: add your ak/sk from huaweicloud
 #    secretKey: add your ak/sk from huaweicloud
 #    akskCustomCipher: default
+management:
+  endpoint:
+    health:
+      show-details: ALWAYS
 #    project: cn-south-1

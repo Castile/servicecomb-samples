@@ -1,0 +1,4 @@
+<config>
+    <handler id="context"
+             class="org.apache.servicecomb.samples.handler.ContextHandler" />
+</config>
